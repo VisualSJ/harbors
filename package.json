@@ -1,0 +1,33 @@
+{
+    "name": "harbors",
+    "version": "0.5.0",
+    "description": "Rapid nodejs web server",
+    "main": "index.js",
+    "scripts": {
+        "test": "harbors test",
+        "start": "node index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/devhacker520/harbors.git"
+    },
+    "bin": {
+        "harbors": "bin/harbors"
+    },
+    "keywords": [
+        "frame"
+    ],
+    "author": {
+        "name": "Wang Sijie",
+        "email": "itharbors@outlook.com",
+        "url" : "http://code.itharbors.com/"
+    },
+    "license": "BSD-2-Clause",
+    "bugs": {
+        "url": "https://github.com/devhacker520/harbors/issues"
+    },
+    "dependencies": {
+        "multiparty": "3.1.1",
+        "commander": "0.2.5"
+    }
+}
