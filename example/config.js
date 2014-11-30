@@ -16,8 +16,8 @@ exports.default = {
 
     },
     cache: {
-        //返回客户端304状态的过期时间
-        expires: 60000,
+        //客户端缓存的过期时间
+        expires: 30000,
         //动态接口的静态缓存
         dynamic: 0,
         //缓存大小

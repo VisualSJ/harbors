@@ -1,6 +1,36 @@
 const fs = require("fs");
 const path = require("path");
 
+const mime = require("./mime");
+
+var sendFile = function(response, request, address, expires){
+
+    var fileStat = fs.statSync(address);
+    var lastModified = fileStat.mtime.toUTCString();
+    var ifModifiedSince = "If-Modified-Since".toLowerCase();
+
+    var extname = path.extname(address);
+
+    if(mime[extname]){
+        response.setHeader("Content-Type", mime[extname]);
+    }
+
+    if(expires){
+        var time = new Date();
+        time.setTime(time.getTime() + expires);
+        response.setHeader("Expires", time.toUTCString());
+        response.setHeader("max-age", expires);
+    }
+
+    if(lastModified == request.headers[ifModifiedSince]){
+        response.writeHeader(304);
+        response.end();
+    }else{
+        response.setHeader("Last-Modified", lastModified);
+        response.end(fs.readFileSync(address));
+    }
+};
+
 /**
  * 检索静态文件
  * @param request
@@ -11,7 +41,8 @@ const path = require("path");
 module.exports = function(request, response, config){
     var dir = config.dir,
         file = config.file,
-        url = request.url;
+        url = request.url,
+        expires = config.cache.expires;
 
     var index = url.indexOf("?");
     if(index !== -1){
@@ -32,13 +63,13 @@ module.exports = function(request, response, config){
             for(var i= 0, len = file.length; i < len; i++){
                 ff = path.join(address, file[i]);
                 if(fs.existsSync(ff)){
-                    response.end(fs.readFileSync(ff));
+                    sendFile(response, request, ff, expires);
                     return true;
                 }
             }
             return false;
         }else{
-            response.end(fs.readFileSync(address));
+            sendFile(response, request, address, expires);
             return true;
         }
     }else{
