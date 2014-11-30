@@ -1,9 +1,10 @@
 const fs = require("fs");
 const path = require("path");
+const zlib = require("zlib");
 
 const mime = require("./mime");
 
-var sendFile = function(response, request, address, expires){
+var sendFile = function(response, request, address, expires, zip){
 
     var fileStat = fs.statSync(address);
     var lastModified = fileStat.mtime.toUTCString();
@@ -22,13 +23,44 @@ var sendFile = function(response, request, address, expires){
         response.setHeader("max-age", expires);
     }
 
+
     if(lastModified == request.headers[ifModifiedSince]){
         response.writeHeader(304);
         response.end();
     }else{
+        var buffer = fs.readFileSync(address);
+
         response.setHeader("Last-Modified", lastModified);
-        response.end(fs.readFileSync(address));
+        if(zip && zip.length){
+
+            var extname = path.extname(address);
+            if(zip.some(function(a){ return a===extname;})){
+                var acceptEncoding = request.headers['accept-encoding'];
+                if(acceptEncoding && acceptEncoding.indexOf('gzip')>-1){
+                    response.setHeader("Content-Encoding", "gzip");
+                    zlib.gzip(buffer, function(error, result){
+                        if(error) throw error;
+                        sendBuffer(response, result.length, result);
+                    });
+                    return;
+                }else if(acceptEncoding && acceptEncoding.indexOf('deflate')>-1){
+                    this._header['Content-Encoding'] = 'deflate';
+                    harbors.log("Zip module : Deflate");
+                    zlib.deflateRaw(string, function(error, result){
+                        if(error) throw error;
+                        sendBuffer(response, result.length, result);
+                    });
+                    return;
+                }
+            }
+        }
+
+        sendBuffer(response, buffer.length, buffer);
     }
+};
+var sendBuffer = function(response, length, buffer){
+    response.setHeader("Content-Length", length);
+    response.end(buffer);
 };
 
 /**
@@ -42,7 +74,8 @@ module.exports = function(request, response, config){
     var dir = config.dir,
         file = config.file,
         url = request.url,
-        expires = config.cache.expires;
+        expires = config.cache.expires,
+        zip = config.zip.file;
 
     var index = url.indexOf("?");
     if(index !== -1){
@@ -63,13 +96,13 @@ module.exports = function(request, response, config){
             for(var i= 0, len = file.length; i < len; i++){
                 ff = path.join(address, file[i]);
                 if(fs.existsSync(ff)){
-                    sendFile(response, request, ff, expires);
+                    sendFile(response, request, ff, expires, zip);
                     return true;
                 }
             }
             return false;
         }else{
-            sendFile(response, request, address, expires);
+            sendFile(response, request, address, expires, zip);
             return true;
         }
     }else{

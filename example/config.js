@@ -24,7 +24,7 @@ exports.default = {
         maximum: 5 * 1024 * 1024
     },
     zip: {
-        file: ["html", "css", "js"]
+        file: [".html", ".css", ".js"]
     },
     log: {
         dir: null,
