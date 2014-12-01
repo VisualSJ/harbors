@@ -37,7 +37,7 @@ exports.START = function(host){
             infoPage(request, response, {
                 state: "404",
                 title: "not found",
-                text: ""
+                text: "You have to find the page does not exist.\nPlease make sure the address is correct.\nOr,Check for and resolve those errors by contacting the server administrator."
             });
         }
     }).listen(host.port);
