@@ -105,8 +105,6 @@ module.exports = function(request, response, config){
             sendFile(response, request, address, expires, zip);
             return true;
         }
-    }else{
-        return false;
     }
-
+    return false;
 };

@@ -1,6 +1,7 @@
 const http = require("http");
 const domain = require("./lib/domain");
 const file = require("./lib/file");
+const requireFile = require("./lib/require");
 const infoPage = require("./lib/infoPage");
 
 var worker = require("./worker");
@@ -26,12 +27,22 @@ exports.START = function(host){
     );
     http.createServer(function(request, response){
         var state;
-        var config = domain(request.headers.host);
+
+        //设置默认头部
         response.setHeader("Server", "Harbors");
         response.setHeader("Content-Type", "text/html");
 
+        //获取对应虚拟主机的配置文件
+        var config = domain(request.headers.host);
+
         //静态文件
         state = file(request, response, config);
+
+        //require js控制器文件
+        if(!state)
+            state = requireFile(request, response, config);
+        else
+            return;
 
         if(!state){
             infoPage(request, response, {
