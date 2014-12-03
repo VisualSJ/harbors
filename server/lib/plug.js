@@ -1,32 +1,13 @@
+var cache = {};
 
 
-exports.createList = function(){
-    return new Queue();
+var register = function(name, object){
+    cache[name] = object;
 };
 
-var Queue = function(){
-    this.task = [];
-};
+register("param", require("../plug/param"));
 
-Queue.prototype.add = function(task){
-    if(task)
-        this.task.push(task);
-};
 
-Queue.prototype.end = function(end){
-    var next = function(){
-        var current = this.task.shift();
-        if(current)
-            current(next);
-        else
-            end();
-    };
-};
-
-exports.get = function(){
-
-};
-
-exports.register = function(){
-
+exports.get = function(name, method){
+    return cache[name][method];
 };

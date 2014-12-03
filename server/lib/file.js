@@ -68,9 +68,9 @@ var sendBuffer = function(response, length, buffer){
  * @param request
  * @param response
  * @param config
- * @returns {boolean}
+ * @param next
  */
-module.exports = function(request, response, config){
+module.exports = function(request, response, config, next){
     var dir = config.dir,
         file = config.file,
         url = request.url,
@@ -97,14 +97,13 @@ module.exports = function(request, response, config){
                 ff = path.join(address, file[i]);
                 if(fs.existsSync(ff)){
                     sendFile(response, request, ff, expires, zip);
-                    return true;
+                    return;
                 }
             }
-            return false;
         }else{
             sendFile(response, request, address, expires, zip);
-            return true;
+            return;
         }
     }
-    return false;
+    next();
 };
