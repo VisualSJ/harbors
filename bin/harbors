@@ -2,7 +2,7 @@
 const cluster = require("cluster");
 
 if(cluster.isMaster){
-    process.title = "Harbors";
+    process.title = "Harbors Server";
 
     const cmd = require("commander");
     const config = require("../tools/config");

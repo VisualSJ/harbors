@@ -5,7 +5,7 @@ exports.config = {
 
 exports.default = {
     dir: null,//静态文件地址, 默认为运行文件夹下
-    controllerDir: "/Users/visualSJ/project/cocos2d-js/samples",//动态接口文件地址, 默认为运行文件夹下(和dir目录一样的话,文件会优先返回成静态文件!)
+    controllerDir: "",//动态接口文件地址, 默认为运行文件夹下(和dir目录一样的话,文件会优先返回成静态文件!)
     file: ["index.html", "index.php"],//默认返回文件
     port: [3000],//端口
     ip: null,//绑定服务器的ip
@@ -42,7 +42,8 @@ exports.default = {
         {
             //注册一个通过require引入的文件类
             extName: ".js",
-            autoReload: true
+            autoReload: true,
+            timeout: 10000
         }
     ]
 };

@@ -1,6 +1,11 @@
-
-
+/**
+ * 返回一个简单的说明页面
+ * @param request
+ * @param response
+ * @param info
+ */
 module.exports = function(request, response, info){
+    response.writeHead(info.state);
     var html = '\
     <!DOCTYPE html>\
         <html>\
@@ -30,6 +35,11 @@ module.exports = function(request, response, info){
     response.end(html);
 };
 
+/**
+ * 拼接说明文字
+ * @param text
+ * @returns {string}
+ */
 var text = function(text){
     var array = text.split("\n");
     text = "";

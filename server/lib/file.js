@@ -4,6 +4,15 @@ const zlib = require("zlib");
 
 const mime = require("./mime");
 
+/**
+ * 返回找到的静态文件
+ * 处理过期时间，304状态等
+ * @param response
+ * @param request
+ * @param address
+ * @param expires
+ * @param zip
+ */
 var sendFile = function(response, request, address, expires, zip){
 
     var fileStat = fs.statSync(address);
@@ -64,7 +73,7 @@ var sendBuffer = function(response, length, buffer){
 };
 
 /**
- * 检索静态文件
+ * 根据传入的url检索静态文件
  * @param request
  * @param response
  * @param config
@@ -73,7 +82,7 @@ var sendBuffer = function(response, length, buffer){
 module.exports = function(request, response, config, next){
     var dir = config.dir,
         file = config.file,
-        url = request.url,
+        url = decodeURI(request.url),
         expires = config.cache.expires,
         zip = config.zip.file;
 

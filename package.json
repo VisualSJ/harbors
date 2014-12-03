@@ -9,7 +9,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/devhacker520/harbors.git"
+        "url": "https://github.com/VisualSJ/harbors.git"
     },
     "bin": {
         "harbors": "bin/harbors"
@@ -24,7 +24,7 @@
     },
     "license": "BSD-2-Clause",
     "bugs": {
-        "url": "https://github.com/devhacker520/harbors/issues"
+        "url": "https://github.com/VisualSJ/harbors/issues"
     },
     "dependencies": {
         "multiparty": "3.1.1",

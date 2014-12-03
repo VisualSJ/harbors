@@ -3,6 +3,15 @@ const path = require("path");
 const plug = require("./plug");
 const infoPage = require("./infoPage");
 
+/**
+ * 找到指定的动态模块
+ * 并且传递给handle方法
+ * @param request
+ * @param response
+ * @param config
+ * @param next
+ * @returns {*}
+ */
 module.exports = function(request, response, config, next){
     if(!config)
         return next();
@@ -23,12 +32,23 @@ module.exports = function(request, response, config, next){
         url += "index";
 
     var address = path.join(dir, url);
-    var fileName;
+    var fileName, timer;
     for(var p in list){
         fileName = address + list[p].extName;
+        var timeout = list[p].timeout;
         if(fs.existsSync(fileName)){
             try{
-                return handle(require(fileName), request, response, list[p], next);
+                timer = setTimeout(function(){
+                    infoPage(request, response, {
+                        state: "500",
+                        title: "Internal error",
+                        text: "The request timeout.\nPlease check and try again."
+                    });
+                }, timeout);
+                return handle(require(fileName), request, response, list[p], function(){
+                    clearTimeout(timer);
+                    next();
+                });
             }catch(error){
                 infoPage(request, response, {
                     state: "500",
@@ -42,6 +62,16 @@ module.exports = function(request, response, config, next){
     next();
 };
 
+/**
+ * 预处理插件
+ * 并执行主体方法
+ * @param module
+ * @param request
+ * @param response
+ * @param config
+ * @param next
+ * @returns {*}
+ */
 var handle = function(module, request, response, config, next){
     var plugList = module.plug,
         filter = module.filter,
