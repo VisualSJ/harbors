@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Welcome to Harbors</title>
+    <style>
+        h1,h4,p{font-family:"微软雅黑";}
+        h1{font-size:30px;color:#333;}
+        h4{margin: 5px 30px;color:#999;font-size:14px;}
+        p{font-size:18px;color:#666;padding: 0 0 0 20px;}
+        footer,section{max-width:920px;margin:0 auto;padding:10px 20px;}
+        footer{border-top:1px solid #999;}
+        a{text-decoration:none;color:#999;cursor:pointer;}
+    </style>
+</head>
+<body>
+<header>
+    <a onclick="return init('zh');">中文</a>
+    |
+    <a onclick="return init('en');">English</a>
+</header>
+<section id="section"></section>
+<footer>
+    <h4>HARBORS / 0.5.0 alpha</h4>
+</footer>
+</body>
+</html>
+<script>
+    var section = document.getElementById("section");
+    var init = function(type){
+        type = type || "zh";
+        section.innerHTML = "";
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET","language?type=" + type,false);
+        xmlhttp.send();
+        var result = JSON.parse(xmlhttp.responseText);
+        var t = document.createElement("h1");
+        t.innerHTML = result.title;
+        section.appendChild(t);
+        result.info.forEach(function(text){
+            var p = document.createElement("p");
+            p.innerHTML = text;
+            section.appendChild(p);
+        });
+    };
+    init();
+
+</script>
