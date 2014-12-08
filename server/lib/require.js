@@ -74,7 +74,10 @@ var handle = function(module, request, response, config, next){
     var handList = [];
     if(plugList)
         plugList.forEach(function(obj){
-            obj.handle.forEach(function(f){
+            var l = obj.handle;
+            if(!l || !l.length)
+                l = plug.list(obj.name);
+            l.forEach(function(f){
                 handList.push(plug.get(obj.name, f));
             });
         });

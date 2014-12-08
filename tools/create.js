@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const print = require("../server/lib/print");
 
 exports.path = function(address, dir){
 
@@ -10,11 +11,10 @@ exports.path = function(address, dir){
 
     try{
         cycleDir(address);
-        console.log("");
-        console.log("  create : %s", address);
+        print.info("create - " + address);
         copyFile(address);
     }catch(error){
-        showError(error);
+        print.error(error.message);
     }
 };
 
@@ -31,7 +31,8 @@ var copyFile = function(dir){
         path.join(__dirname, "../example/config.js")
     ) + "";
     var staticDir = path.join(dir, "static").replace(/\\/g, "\\\\"),
-        controllerDir = path.join(dir, "controller").replace(/\\/g, "\\\\");
+        controllerDir = path.join(dir, "controller").replace(/\\/g, "\\\\"),
+        plugDir = path.join(dir, "plug").replace(/\\/g, "\\\\");
 
     config = config.replace(/(dir *\: *)\"\"/, function(str, a){
         return a + '"' + staticDir + '"';
@@ -39,14 +40,18 @@ var copyFile = function(dir){
     config = config.replace(/(controllerDir *\: *)\"\"/, function(str, a){
         return a + '"' + controllerDir + '"';
     });
+    config = config.replace(/(plugDir *\: *)\"\"/, function(str, a){
+        return a + '"' + plugDir + '"';
+    });
     fs.writeFileSync(
         path.join(dir, "config.js"),
         config
     );
 
-    //创建上述的两个文件夹
+    //创建上述的三个文件夹
     fs.mkdirSync(staticDir);
     fs.mkdirSync(controllerDir);
+    fs.mkdirSync(plugDir);
 
     //创建文件夹内的文件
     var readable = fs.createReadStream( path.join(__dirname, "../example/index.html") );
@@ -55,10 +60,7 @@ var copyFile = function(dir){
     readable = fs.createReadStream( path.join(__dirname, "../example/language.js") );
     writable = fs.createWriteStream( path.join(controllerDir, "language.js") );
     readable.pipe( writable );
-};
-
-var showError = function(error){
-    console.log("");
-    console.log(" error : %s", error.message);
-    console.log("");
+    readable = fs.createReadStream( path.join(__dirname, "../example/example.js") );
+    writable = fs.createWriteStream( path.join(plugDir, "example.js") );
+    readable.pipe( writable );
 };

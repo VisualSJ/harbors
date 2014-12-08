@@ -1,4 +1,5 @@
 const handle = require("./handle");
+const print = require("./lib/print");
 
 //  虚拟主机列表
 exports.vhost = null;
@@ -13,9 +14,7 @@ exports.listen = function(){
     process.on("message", function(a, b){
         var controller, object;
         if(!a){
-            console.log("");
-            console.error("  error : The process of receiving command error");
-            console.log("");
+            print.error("The process of receiving command error");
             return;
         }else if(!b){
             controller = a.controller;
@@ -29,9 +28,7 @@ exports.listen = function(){
         if(typeof list === "function")
             list(object.result);
         else{
-            console.log("");
-            console.error("  error : The process could not identify command");
-            console.log("");
+            print.error("The process could not identify command");
         }
     });
 };

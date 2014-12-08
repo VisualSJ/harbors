@@ -1,6 +1,6 @@
 {
     "name": "harbors",
-    "version": "0.5.1",
+    "version": "0.5.2-alpha0",
     "description": "Rapid nodejs web server",
     "main": "index.js",
     "scripts": {
@@ -22,7 +22,7 @@
         "email": "itharbors@outlook.com",
         "url" : "http://code.itharbors.com/"
     },
-    "license": "BSD-2-Clause",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/VisualSJ/harbors/issues"
     },

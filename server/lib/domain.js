@@ -1,4 +1,4 @@
-
+const print = require("./print");
 
 var worker = require("../worker");
 var domain2host = {};
@@ -15,10 +15,9 @@ var match = function(list, domain){
     }
     var nextDomain = backURL(domain);
     if(nextDomain === domain){
-        console.log("");
-        console.warn("  warn : domain is not found");
-        console.log("");
-        console.log("    %s", domain);
+        print.warn("domain is not found", [
+            domain
+        ]);
         return;
     }
     return match(list, nextDomain);

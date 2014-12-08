@@ -26,3 +26,9 @@ Harbors
 这样就经可以使用http://localhost:3000/访问这个文件夹下的文件了
 
 默认监听3000端口, 未绑定ip地址
+
+###3. 创建新的web站点
+
+    harbors -c website
+    
+命令会在当前目录下新建一个website文件夹，并创建基础的配置以及文件目录

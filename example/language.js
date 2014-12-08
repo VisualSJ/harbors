@@ -1,5 +1,5 @@
 exports.plug = [
-    {name: "param", handle: ["get", "post"]}
+    {name: "param", handle: ["GET", "POST"]}
 ];
 
 exports.filter = function(request, response, method, next){
@@ -25,7 +25,7 @@ var language = {
 
 exports.handle = function(request, response, method){
     var result;
-    switch(method.get("type")){
+    switch(method.GET("type")){
         case "zh":
             result = language.zh;
             break;

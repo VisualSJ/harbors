@@ -41,6 +41,12 @@ if(cluster.isMaster){
     for(var i=0; i<op.config.process; i++){
         child = cluster.fork();
         child.send(v);
+
+        op.config.plugDir && child.send({
+            controller: "IMPORTPLUG",
+            result: op.config.plugDir
+        });
+
         listen.forEach(function(ser){
             child.send({
                 controller: "START",

@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const print = require("../server/lib/print");
 
 const support = {
     files: [
@@ -21,11 +22,9 @@ exports.read = function(pathDir){
     var realPath, stat;
 
     if(!fs.existsSync(pathDir)){
-        console.log("");
-        console.error("  error: file / dir does not exist");
-        console.log("");
-        console.warn("    %s", pathDir);
-        console.log("");
+        print.error("file / dir does not exist",[
+            pathDir
+        ]);
         return;
     }
 
@@ -50,11 +49,9 @@ exports.read = function(pathDir){
             }
         }
     }catch(error){
-        console.log("");
-        console.error("  error: The file is not a standard module");
-        console.log("");
-        console.warn("    %s", realPath || pathDir);
-        console.log("");
+        print.error("The file is not a standard module",[
+            realPath || pathDir
+        ]);
     }
 };
 
@@ -100,9 +97,7 @@ exports.separation = function(cc){
     if(vhost === undefined)
         vhost = [cc.default];
     if(!Array.isArray(vhost)){
-        console.log("");
-        console.error("  error : Virtual host configuration is not recognized");
-        console.log("");
+        print.error("Virtual host configuration is not recognized");
         return null;
     }
 
@@ -137,13 +132,11 @@ exports.extraction = function(option){
         Port = host.port;
 
         if(Port === undefined){
-            console.log("");
-            console.warn("  warn : The host (%s) is not set the port monitor", index);
-            console.log("");
-            console.warn("     IP     : %s", host.ip);
-            console.warn("     DOMAIN : %s", host.domain);
-            console.warn("     DIR    : %s", host.dir);
-            console.log("");
+            print.warn("The host (" + index + ") is not set the port monitor",[
+                "IP     : " + host.ip,
+                "DOMAIN : " + host.domain,
+                "DIR    : " + host.dir
+            ]);
             return;
         }
 

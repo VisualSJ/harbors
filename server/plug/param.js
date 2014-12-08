@@ -1,9 +1,13 @@
-exports.plug = [
-    "get",
-    "post"
+var multiparty = require("multiparty");
+
+exports.name = "param";
+
+exports.default = [
+    "GET",
+    "POST"
 ];
 
-exports.get = function(request, response, method, callback){
+var GET = function(request, response, method, callback){
     var result = {};
     var paramArr = request.url.split("?");
     if(paramArr && paramArr[1]){
@@ -13,12 +17,33 @@ exports.get = function(request, response, method, callback){
             result[t[0]] = t[1];
         });
     }
-    method.get = function(name){
+    method.GET = function(name){
         return name ? result[name] : result;
     };
     callback();
 };
 
-exports.post = function(request, response, method, callback){
-    callback();
+var POST = function(request, response, method, callback){
+
+    if(request.method === 'POST'){
+        var form = new multiparty.Form();
+        form.parse(request, function(err, fields, files) {
+            method.POST = function(name){
+                if(!name)
+                    return fields;
+                else{
+                    return fields[name] || files[name];
+                }
+            };
+            callback();
+        });
+    }else{
+        method.POST = function(){};
+        callback();
+    }
+};
+
+exports.define = {
+    GET: GET,
+    POST: POST
 };

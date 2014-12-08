@@ -1,12 +1,14 @@
 exports.config = {
     //进程数量
-    process: 1
+    process: 1,
+    //自动加载的插件目录
+    plugDir: ""
 };
 
 exports.default = {
     dir: "",//静态文件地址, 默认为运行文件夹下
     controllerDir: "",//动态接口文件地址, 默认为运行文件夹下(和dir目录一样的话,文件会优先返回成静态文件!)
-    file: ["index.html", "index.php"],//默认返回文件
+    file: ["index.html"],//默认返回文件
     port: [3000],//端口
     ip: null,//绑定服务器的ip
     domain: "*",//绑定服务器的域名
@@ -24,7 +26,7 @@ exports.default = {
         maximum: 5 * 1024 * 1024
     },
     zip: {
-        file: [".html", ".css", ".js"]
+        file: []
     },
     log: {
         dir: null,

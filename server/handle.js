@@ -3,6 +3,8 @@ const domain = require("./lib/domain");
 const file = require("./lib/file");
 const requireFile = require("./lib/require");
 const infoPage = require("./lib/infoPage");
+const plug = require("./lib/plug");
+const print = require("./lib/print");
 
 var worker = require("./worker");
 
@@ -14,6 +16,11 @@ exports.VHOST = function(vhost){
     worker.vhost = JSON.parse(vhost);
 };
 
+/**
+ * 导入自定义的plug插件
+ */
+exports.IMPORTPLUG = plug.import;
+
 var handleList = [
     file,
     requireFile
@@ -24,20 +31,22 @@ var handleList = [
  */
 exports.START = function(host){
     host = JSON.parse(host);
-    console.log(
-        "  PID#"+(process.pid)+
-        " start listen - "+(host["port"])+
-        " | "+(host["ip"] || "not bind ip")
-    );
+
+    print.info(
+            "PID#"+(process.pid)+
+            " start listen - "+(host["port"])+
+            " | "+(host["ip"] || "not bind ip"));
+
+    var end = function(request, response){
+        infoPage(request, response, {
+            state: "404",
+            title: "not found",
+            text: "You have to find the page does not exist.\nPlease make sure the address is correct.\nOr,Check for and resolve those errors by contacting the server administrator."
+        });
+    };
+
     http.createServer(function(request, response){
 
-        var end = function(){
-            infoPage(request, response, {
-                state: "404",
-                title: "not found",
-                text: "You have to find the page does not exist.\nPlease make sure the address is correct.\nOr,Check for and resolve those errors by contacting the server administrator."
-            });
-        };
 
         //设置默认头部
         response.setHeader("Server", "Harbors");
@@ -52,7 +61,7 @@ exports.START = function(host){
             if(handleList[index])
                 handleList[index](request, response, config, next);
             else
-                end();
+                end(request, response);
         };
         next();
 
