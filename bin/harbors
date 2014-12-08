@@ -6,6 +6,7 @@ if(cluster.isMaster){
 
     const cmd = require("commander");
     const config = require("../tools/config");
+    const create = require("../tools/create");
 
 
     var current = process.cwd();
@@ -13,7 +14,16 @@ if(cluster.isMaster){
     cmd
         .version("0.5.0")
         .option("-s, --start [value]"    , "start server [part]"    , current)
+        .option("-c, --create [value]"   , "Create a new web site directory")
         .parse(process.argv);
+
+    //创建新项目
+    if(cmd.create){
+        //设置默认创建文件夹名字
+        create.path(cmd.create, current);
+
+        return;
+    }
 
     var op = config.read(cmd.start);
 
