@@ -32,23 +32,13 @@ module.exports = function(request, response, config, next){
         url += "index";
 
     var address = path.join(dir, url);
-    var fileName, timer;
+    var fileName;
     for(var p in list){
         fileName = address + list[p].extName;
         var timeout = list[p].timeout;
         if(fs.existsSync(fileName)){
             try{
-                timer = setTimeout(function(){
-                    infoPage(request, response, {
-                        state: "500",
-                        title: "Internal error",
-                        text: "The request timeout.\nPlease check and try again."
-                    });
-                }, timeout);
-                return handle(require(fileName), request, response, list[p], function(){
-                    clearTimeout(timer);
-                    next();
-                });
+                return handle(require(fileName), request, response, list[p], next);
             }catch(error){
                 infoPage(request, response, {
                     state: "500",
