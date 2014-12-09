@@ -3,10 +3,24 @@ const print = require("./print");
 var worker = require("../worker");
 var domain2host = {};
 
+/**
+ * 根据传入的url，返回上一级地址
+ *   www.itharbors.com -> *.itharbors.com
+ *   *.itharbors.com   -> *.com
+ *   *.com             -> *
+ * @param {String} domain
+ * @returns {XML|string|void}
+ */
 var backURL = function(domain){
     return domain.replace(/^(\*\.[^\.]*|[^\.]*)/, '*');
 };
 
+/**
+ * 匹配虚拟主机
+ * @param {Array} list 虚拟主机列表
+ * @param {String} domain 请求的域名
+ * @returns {Object}
+ */
 var match = function(list, domain){
     for(var i = 0, len = list.length; i < len; i++){
         if(list[i].domain === domain){
@@ -26,7 +40,7 @@ var match = function(list, domain){
 /**
  * 传入一个域名
  * 在worker的vhost中寻找对应的配置参数
- * @param domain
+ * @param {String} domain
  */
 module.exports = function(domain){
     if(domain2host[domain]){

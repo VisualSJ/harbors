@@ -6,11 +6,10 @@ const infoPage = require("./infoPage");
 /**
  * 找到指定的动态模块
  * 并且传递给handle方法
- * @param request
- * @param response
- * @param config
- * @param next
- * @returns {*}
+ * @param {Object} request
+ * @param {Object} response
+ * @param {Object} config
+ * @param {Function} next
  */
 module.exports = function(request, response, config, next){
     if(!config)
@@ -24,21 +23,20 @@ module.exports = function(request, response, config, next){
         return next();
 
     var index = url.indexOf("?");
-    if(index !== -1){
+    if(index !== -1)
         url = url.substr(0, index);
-    }
 
     if(/\/$/.test(url))
         url += "index";
 
     var address = path.join(dir, url);
-    var fileName;
+    var fileName, item;
     for(var p in list){
-        fileName = address + list[p].extName;
-        var timeout = list[p].timeout;
+        item = list[p];
+        fileName = address + item.extName;
         if(fs.existsSync(fileName)){
             try{
-                return handle(require(fileName), request, response, list[p], next);
+                return handle(require(fileName), request, response, item, next);
             }catch(error){
                 infoPage(request, response, {
                     state: "500",
@@ -55,12 +53,11 @@ module.exports = function(request, response, config, next){
 /**
  * 预处理插件
  * 并执行主体方法
- * @param module
- * @param request
- * @param response
- * @param config
- * @param next
- * @returns {*}
+ * @param {Object} module
+ * @param {Object} request
+ * @param {Object} response
+ * @param {Object} config
+ * @param {Function} next
  */
 var handle = function(module, request, response, config, next){
     var plugList = module.plug,
@@ -72,23 +69,26 @@ var handle = function(module, request, response, config, next){
 
     var method = {};
     var handList = [];
-    if(plugList)
-        plugList.forEach(function(obj){
-            var l = obj.handle;
-            if(!l || !l.length)
-                l = plug.list(obj.name);
-            l.forEach(function(f){
-                handList.push(plug.get(obj.name, f));
-            });
-        });
+    if(plugList){
+        var i, ilen, j, jlen, obj, me;
+        for(i=0, ilen=plugList.length; i<ilen; i++) {
+            obj = plugList[i];
+            me = obj.handle;
+            if (!(me && me.length))
+                me = plug.list(obj.name);
+            for (j = 0, jlen = me.length; j < jlen; j++)
+                handList.push(plug.get(obj.name, me[j]));
+
+        }
+    }
 
     var main = function(){
         handle(request, response, method);
     };
     var plugNext = function(){
-        var p = handList.shift();
-        if(p)
-            p(request, response, method, plugNext);
+        var plugItem = handList.shift();
+        if(plugItem)
+            plugItem(request, response, method, plugNext);
         else{
             if(filter)
                 filter(request, response, method, main);

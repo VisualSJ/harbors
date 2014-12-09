@@ -4,10 +4,19 @@ const print = require("./print");
 
 var cache = {};
 
+/**
+ * 注册一个插件到列表中
+ * @param {Object} plug
+ */
 var register = function(plug){
     cache[plug.name] = plug;
 };
 
+/**
+ * 传入一个文件夹
+ * 导入这个文件夹中所有符合标准的插件
+ * @param {String} dir
+ */
 exports.import = function(dir){
     var ex = fs.existsSync(dir);
     if(!ex){
@@ -25,17 +34,29 @@ exports.import = function(dir){
 
         try{
             var plug = require(path.join(dir, file));
-            register(plug);
+            if(plug.name)
+                register(plug);
         }catch(error){
             print.warn("Failed to read the plugin - " + file);
         }
     });
 };
 
+/**
+ * 获取一个插件内的指定方法
+ * @param {String} name
+ * @param {String} method
+ * @returns {Function}
+ */
 exports.get = function(name, method){
     return cache[name].define[method];
 };
 
+/**
+ * 获取一个插件内自动导入的方法列表
+ * @param {String} name
+ * @returns {Array}
+ */
 exports.list = function(name){
     return cache[name].default;
 };

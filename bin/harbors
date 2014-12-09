@@ -8,11 +8,10 @@ if(cluster.isMaster){
     const config = require("../tools/config");
     const create = require("../tools/create");
 
-
     var current = process.cwd();
 
     cmd
-        .version("0.5.0")
+        .version("0.5.2-beta")
         .option("-s, --start [value]"    , "start server [part]"    , current)
         .option("-c, --create [value]"   , "Create a new web site directory")
         .parse(process.argv);

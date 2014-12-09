@@ -7,23 +7,22 @@ const mime = require("./mime");
 /**
  * 返回找到的静态文件
  * 处理过期时间，304状态等
- * @param response
- * @param request
- * @param address
- * @param expires
- * @param zip
+ * @param {Object} response
+ * @param {Object} request
+ * @param {String} address
+ * @param {Number} expires
+ * @param {Boolean} zip
  */
+var ifModifiedSince = "If-Modified-Since".toLowerCase();
 var sendFile = function(response, request, address, expires, zip){
 
     var fileStat = fs.statSync(address);
     var lastModified = fileStat.mtime.toUTCString();
-    var ifModifiedSince = "If-Modified-Since".toLowerCase();
 
     var extname = path.extname(address);
 
-    if(mime[extname]){
+    if(mime[extname])
         response.setHeader("Content-Type", mime[extname]);
-    }
 
     if(expires){
         var time = new Date();
@@ -42,7 +41,7 @@ var sendFile = function(response, request, address, expires, zip){
         response.setHeader("Last-Modified", lastModified);
         if(zip && zip.length){
 
-            var extname = path.extname(address);
+            extname = path.extname(address);
             if(zip.some(function(a){ return a===extname;})){
                 var acceptEncoding = request.headers['accept-encoding'];
                 if(acceptEncoding && acceptEncoding.indexOf('gzip')>-1){
@@ -67,6 +66,13 @@ var sendFile = function(response, request, address, expires, zip){
         sendBuffer(response, buffer.length, buffer);
     }
 };
+
+/**
+ * 返回buffer
+ * @param {Object} response
+ * @param {Number} length
+ * @param {Buffer} buffer
+ */
 var sendBuffer = function(response, length, buffer){
     response.setHeader("Content-Length", length);
     response.end(buffer);
@@ -74,10 +80,10 @@ var sendBuffer = function(response, length, buffer){
 
 /**
  * 根据传入的url检索静态文件
- * @param request
- * @param response
- * @param config
- * @param next
+ * @param {Object} request
+ * @param {Object} response
+ * @param {Object} config
+ * @param {Function} next
  */
 module.exports = function(request, response, config, next){
     var dir = config.dir,
@@ -87,9 +93,8 @@ module.exports = function(request, response, config, next){
         zip = config.zip.file;
 
     var index = url.indexOf("?");
-    if(index !== -1){
+    if(index !== -1)
         url = url.substr(0, index);
-    }
 
     var address = path.join(dir, url);
 

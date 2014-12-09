@@ -5,7 +5,7 @@ Harbors
 
 ##Harbors是什么?
 
-一个基于NodeJS的一个轻量级WEB服务器
+一个基于NodeJS的轻量级WEB服务器
 
 让您使用js简单的构建出一个WEB站点, 基于原生NodeJS语法, 易学易用.
 

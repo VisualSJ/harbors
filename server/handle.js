@@ -10,7 +10,7 @@ var worker = require("./worker");
 
 /**
  * 接收虚拟主机列表
- * @param vhost
+ * @param {Object} vhost
  */
 exports.VHOST = function(vhost){
     worker.vhost = JSON.parse(vhost);
@@ -27,7 +27,7 @@ var handleList = [
 ];
 /**
  * 开启一个服务器
- * @param {object} host - port, ip, host num
+ * @param {Object} host - port, ip, host num
  */
 exports.START = function(host){
     host = JSON.parse(host);
@@ -50,7 +50,7 @@ exports.START = function(host){
 
         //设置默认头部
         response.setHeader("Server", "Harbors");
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html;charset=utf8");
 
         //获取对应虚拟主机的配置文件
         var config = domain(request.headers.host);

@@ -1,8 +1,8 @@
 /**
  * 返回一个简单的说明页面
- * @param request
- * @param response
- * @param info
+ * @param {Object} request
+ * @param {Object} response
+ * @param {Object} info
  */
 module.exports = function(request, response, info){
     response.writeHead(info.state);
