@@ -62,25 +62,27 @@ exports.read = function(pathDir){
  * return {object}
  */
 exports.fill = function(cc){
-    var rc = Object.create(dc);
 
     var copy = function(a, b){
         for(var p in b){
             if(Array.isArray(b[p])){
-                a[p] = [];
+                if(!a[p])
+                    a[p] = [];
                 copy(a[p], b[p]);
             }else if(typeof b[p] === "object" && b[p] != null){
-                a[p] = {};
+                if(!a[p])
+                    a[p] = {};
                 copy(a[p], b[p]);
             }else{
-                a[p] = b[p];
+                if(!a[p])
+                    a[p] = b[p];
             }
         }
     };
 
-    copy(rc, cc);
+    copy(cc, dc);
 
-    return rc;
+    return cc;
 };
 
 /**
@@ -95,7 +97,7 @@ exports.separation = function(cc){
     var result = [];
     var vhost = cc.vhost;
     if(vhost === undefined)
-        vhost = [cc.default];
+        vhost = [];
     if(!Array.isArray(vhost)){
         print.error("Virtual host configuration is not recognized");
         return null;
@@ -105,7 +107,7 @@ exports.separation = function(cc){
         vhost.push(cc.default);
 
     vhost.forEach(function(host, index){
-        result[index] = Object.create(cc.default);
+        result[index] = JSON.parse( JSON.stringify( cc.default ) );
         for(var p in host){
             result[index][p] = host[p];
         }

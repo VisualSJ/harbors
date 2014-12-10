@@ -22,9 +22,12 @@ var backURL = function(domain){
  * @returns {Object}
  */
 var match = function(list, domain){
+    var host;
+    var wHost = worker.vhost;
     for(var i = 0, len = list.length; i < len; i++){
-        if(list[i].domain === domain){
-            return list[i];
+        host = wHost[list[i]];
+        if(host.domain === domain){
+            return host;
         }
     }
     var nextDomain = backURL(domain);
@@ -41,14 +44,15 @@ var match = function(list, domain){
  * 传入一个域名
  * 在worker的vhost中寻找对应的配置参数
  * @param {String} domain
+ * @param {Array} list
  */
-module.exports = function(domain){
+module.exports = function(domain, list){
     if(domain2host[domain]){
         //在缓存队列中寻找对应的配置
         return domain2host[domain];
     }else{
         //缓存不存在，在整个队列里寻找
-        var config = match(worker.vhost, domain);
+        var config = match(list, domain);
         if(config)
             domain2host[domain] = config;
 

@@ -45,6 +45,7 @@ exports.START = function(host){
         });
     };
 
+    var hostList = host.hostNum;
     http.createServer(function(request, response){
 
 
@@ -53,7 +54,7 @@ exports.START = function(host){
         response.setHeader("Content-Type", "text/html;charset=utf8");
 
         //获取对应虚拟主机的配置文件
-        var config = domain(request.headers.host);
+        var config = domain(request.headers.host, hostList);
 
         var index = -1;
         var next = function(){
