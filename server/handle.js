@@ -58,7 +58,10 @@ exports.START = function(host){
             return end(request, response);
 
         //获取对应虚拟主机的配置文件
-        var config = domain(request.headers.host, hostList);
+        var config = domain((request.headers.host+"").split(":")[0], hostList);
+
+        if(!config)
+            return end(request, response);
 
         var index = -1;
         var next = function(){

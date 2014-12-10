@@ -32,9 +32,7 @@ var match = function(list, domain){
     }
     var nextDomain = backURL(domain);
     if(nextDomain === domain){
-        print.warn("domain is not found", [
-            domain
-        ]);
+        print.warn("domain is not found");
         return;
     }
     return match(list, nextDomain);
