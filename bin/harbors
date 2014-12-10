@@ -4,15 +4,21 @@ const cluster = require("cluster");
 if(cluster.isMaster){
     process.title = "Harbors Server";
 
+    const fs = require("fs");
+    const path = require("path");
     const cmd = require("commander");
     const config = require("../tools/config");
     const create = require("../tools/create");
+    const eConfig = require("../example/config");
+
+    var json = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json")));
 
     var current = process.cwd();
 
     cmd
-        .version("0.5.2-beta")
+        .version(json.version)
         .option("-s, --start [value]"    , "start server [part]"    , current)
+        .option("-p, --port [value]"     , "default listen port", null)
         .option("-c, --create [value]"   , "Create a new web site directory")
         .parse(process.argv);
 
@@ -25,6 +31,9 @@ if(cluster.isMaster){
     }
 
     var op = config.read(cmd.start);
+
+    if(cmd.port)
+        eConfig.default.port = cmd.port;
 
     op = config.fill(op);
 

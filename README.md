@@ -21,14 +21,16 @@ Harbors
 
 进入需要构建成服务器的文件夹, 并执行:
 
-    harbors
+    harbors --port 3333
 
-这样就经可以使用http://localhost:3000/访问这个文件夹下的文件了
+这样就经可以使用http://localhost:3333/访问这个文件夹下的文件了
 
-默认监听3000端口, 未绑定ip地址
+如不输入--port, 则默认监听3000端口, 不绑定ip地址
 
 ###3. 创建新的web站点
 
-    harbors -c website
+    harbors --create website
     
 命令会在当前目录下新建一个website文件夹，并创建基础的配置以及文件目录
+
+不输入名字则自动生成site文件夹

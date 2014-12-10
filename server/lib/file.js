@@ -89,12 +89,11 @@ module.exports = function(request, response, config, next){
     var dir = config.dir,
         file = config.file,
         url = decodeURI(request.url),
-        expires = config.cache.expires,
-        zip = config.zip.file;
+        expires = config.cache ? config.cache.expires : 0,
+        zip = config.zip ? config.zip.file : 0;
 
-    var index = url.indexOf("?");
-    if(index !== -1)
-        url = url.substr(0, index);
+    url = url.split("?");
+    url = url[0];
 
     var address = path.join(dir, url);
 

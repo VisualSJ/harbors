@@ -52,10 +52,6 @@ module.exports = function(domain, list){
         return domain2host[domain];
     }else{
         //缓存不存在，在整个队列里寻找
-        var config = match(list, domain);
-        if(config)
-            domain2host[domain] = config;
-
-        return config;
+        return domain2host[domain] = match(list, domain)
     }
 };

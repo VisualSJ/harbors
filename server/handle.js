@@ -53,6 +53,10 @@ exports.START = function(host){
         response.setHeader("Server", "Harbors");
         response.setHeader("Content-Type", "text/html;charset=utf8");
 
+        //如果没有访问的headers，则视为非法访问
+        if(!(request.headers && request.headers.host))
+            return end(request, response);
+
         //获取对应虚拟主机的配置文件
         var config = domain(request.headers.host, hostList);
 
@@ -66,5 +70,5 @@ exports.START = function(host){
         };
         next();
 
-    }).listen(host.port);
+    }).listen(host.port, host.ip);
 };
