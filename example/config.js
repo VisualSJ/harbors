@@ -12,6 +12,7 @@ exports.default = {
     port: [3000],//端口
     ip: null,//绑定服务器的ip
     domain: "*",//绑定服务器的域名
+    accessOrigin: true,
     session: {
         id: "HsessID",
         expires: 3600000
