@@ -45,7 +45,7 @@ var SET = function(request, response, method, callback){
     method.cookie = method.cookie || {};
 
     method.cookie.SET = function(name, value, expires, path, domain){
-        var cookie = response.getHeader("Set-Cookie");
+        var cookie = response.getHeader("Set-Cookie") || [];
         if(Array.isArray(cookie))
             cookie = [cookie];
 
