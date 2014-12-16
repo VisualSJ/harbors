@@ -58,7 +58,7 @@ var POST = function(request, response, method, callback){
                 if(!name)
                     return fields;
                 else{
-                    return fields[name] || files[name];
+                    return (fields && fields[name]) || (files && files[name]);
                 }
             };
             callback();
