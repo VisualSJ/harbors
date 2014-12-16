@@ -29,7 +29,7 @@ var GET = function(request, response, method, callback){
     var paramArr = request.url.match(sp_ex);
     if(paramArr){
         var t;
-        for(var i=paramArr.length; i>0; i--){
+        for(var i=paramArr.length-1; i>=0; i--){
             t = paramArr[i].split("=");
             result[t[0]] = t[1];
         }

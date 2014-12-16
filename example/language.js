@@ -45,7 +45,7 @@ var language = {
  */
 exports.handle = function(request, response, method){
     var result;
-    switch(method.GET("type")){
+    switch(method.param.GET("type")){
         case "zh":
             result = language.zh;
             break;
