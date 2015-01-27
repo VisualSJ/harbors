@@ -90,7 +90,7 @@ module.exports = {
     ".odp"   : "application/vnd.oasis.opendocument.presentation",
     ".ods"   : "application/vnd.oasis.opendocument.spreadsheet",
     ".odt"   : "application/vnd.oasis.opendocument.text",
-    ".ogg"   : "application/ogg",
+    ".ogg"   : "audio/ogg",
     ".p"     : "text/x-pascal",
     ".pas"   : "text/x-pascal",
     ".pbm"   : "image/x-portable-bitmap",
