@@ -27,7 +27,7 @@ module.exports = function(request, response, info){
                     ' + text(info.text) + '\
                 </section>\
                 <footer>\
-                    <h4>HARBORS / 0.5.0 alpha</h4>\
+                    <h4>HARBORS / 0.5</h4>\
                 </footer>\
             </body>\
         </html>\
