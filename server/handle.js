@@ -64,7 +64,7 @@ exports.START = function(host){
 
         //是否允许来源页面的跨域访问
         if(config.accessOrigin)
-            response.setHeader("Access-Control-Allow-Origin'", request.headers.origin);
+            response.setHeader("Access-Control-Allow-Origin", "*");
 
         if(!config)
             return end(request, response);
