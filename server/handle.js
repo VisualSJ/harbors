@@ -59,10 +59,12 @@ exports.START = function(host){
 
         //获取对应虚拟主机的配置文件
         var config = domain((request.headers.host+"").split(":")[0], hostList);
+        if(!config)
+            return end(request, response);
 
         //是否允许来源页面的跨域访问
         if(config.accessOrigin)
-            response.setHeader("Access-Control-Allow-Origin'", request.headers.origin);
+            response.setHeader("Access-Control-Allow-Origin", "*");
 
         if(!config)
             return end(request, response);

@@ -18,17 +18,27 @@ var register = function(plug){
  * @param {String} dir
  */
 exports.import = function(dir){
-    var ex = fs.existsSync(dir);
+    var st, ex = fs.existsSync(dir);
     if(!ex){
         print.warn("Cannot find the specified plug-in directory");
         return;
     }else{
-        var st = fs.statSync(dir);
+        st = fs.statSync(dir);
         if(!st.isDirectory()){
             print.warn("The specified plugin address is not a valid directory");
             return;
         }
     }
+    //判断相对目录还是绝对目录
+    var tDir = path.join(process.cwd(), dir);
+    ex = fs.existsSync(tDir);
+    if(ex){
+        st = fs.statSync(dir);
+        if(st.isDirectory()){
+            dir = tDir;
+        }
+    }
+
     var list = fs.readdirSync(dir);
     list.forEach(function(file){
 
@@ -37,6 +47,7 @@ exports.import = function(dir){
             if(plug.name)
                 register(plug);
         }catch(error){
+            print.warn(error);
             print.warn("Failed to read the plugin - " + file);
         }
     });
