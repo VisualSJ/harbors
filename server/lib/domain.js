@@ -31,11 +31,10 @@ var match = function(list, domain){
         }
     }
     var nextDomain = backURL(domain);
-    if(nextDomain === domain){
-        print.warn("domain is not found");
-        return;
-    }
-    return match(list, nextDomain);
+    if(nextDomain !== domain)
+        return match(list, nextDomain);
+    else
+        return null;
 };
 
 /**
@@ -45,11 +44,13 @@ var match = function(list, domain){
  * @param {Array} list
  */
 module.exports = function(domain, list){
-    if(domain2host[domain]){
+    var host;
+    if(domain2host[domain] !== undefined){
         //在缓存队列中寻找对应的配置
-        return domain2host[domain];
+        host = domain2host[domain];
     }else{
         //缓存不存在，在整个队列里寻找
-        return domain2host[domain] = match(list, domain)
+        host = domain2host[domain] = match(list, domain);
     }
+    return host;
 };

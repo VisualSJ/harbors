@@ -30,29 +30,35 @@ var style = {
 };
 
 exports.info = function(message, info){
+    console.log(style.none);
     console.log("  info : %s", message);
     if(info && Array.isArray(info)){
         console.log("");
         info.forEach(function(text){
-            console.log("    %s", info);
+            console.log("    %s", text);
         });
     }
+    console.log(style.none);
 };
 
 exports.warn = function(message, info){
-    console.log(style.popcorn + "  info : %s" + style.none, message);
+    console.log(style.popcorn);
+    console.log("  info : %s", message);
     if(info && Array.isArray(info)){
         info.forEach(function(text){
-            console.log("    %s", info);
+            console.log("    %s", text);
         });
     }
+    console.log(style.none);
 };
 
 exports.error = function(message, info){
-    console.log(style.red + "  info : %s" + style.none, message);
+    console.log(style.red);
+    console.log("  info : %s", message);
     if(info && Array.isArray(info)){
         info.forEach(function(text){
-            console.log("    %s", info);
+            console.log("    %s", text);
         });
     }
+    console.log(style.none);
 };

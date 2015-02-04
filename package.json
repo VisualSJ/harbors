@@ -1,6 +1,6 @@
 {
     "name": "harbors",
-    "version": "0.5.4-beta0",
+    "version": "0.5.4-beta1",
     "description": "Rapid nodejs web server",
     "main": "index.js",
     "scripts": {

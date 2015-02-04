@@ -58,9 +58,17 @@ exports.START = function(host){
             return end(request, response);
 
         //获取对应虚拟主机的配置文件
-        var config = domain((request.headers.host+"").split(":")[0], hostList);
-        if(!config)
+        var remoteUrl = (request.headers.host+"").split(":")[0];
+        var config = domain(remoteUrl, hostList);
+        if(!config){
+            print.warn("domain is not found:", [
+                "Remote address: " + getClientIp(request),
+                "Host: " + remoteUrl,
+                "Url: " + request.url,
+                "Date: " + (new Date() - 0)
+            ]);
             return end(request, response);
+        }
 
         //是否允许来源页面的跨域访问
         if(config.accessOrigin)
@@ -80,4 +88,17 @@ exports.START = function(host){
         next();
 
     }).listen(host.port, host.ip);
+};
+
+function getClientIp(request) {
+    if(request.headers && request.headers['x-forwarded-for'])
+        return request.headers['x-forwarded-for'];
+    if(request.connection){
+        if(request.connection.remoteAddress)
+            return request.connection.remoteAddress;
+        if(request.connection.socket && request.connection.socket.remoteAddress)
+            return request.connection.socket.remoteAddress;
+    }
+    if(request.socket && request.socket.remoteAddress)
+        return request.socket.remoteAddress;
 };
