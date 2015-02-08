@@ -2,6 +2,7 @@ const http = require("http");
 const domain = require("./lib/domain");
 const file = require("./lib/file");
 const requireFile = require("./lib/require");
+const fastCGI = require("./lib/fastCGI");
 const infoPage = require("./lib/infoPage");
 const plug = require("./lib/plug");
 const print = require("./lib/print");
@@ -23,7 +24,8 @@ exports.IMPORTPLUG = plug.import;
 
 var handleList = [
     file,
-    requireFile
+    requireFile,
+    fastCGI
 ];
 /**
  * 开启一个服务器
