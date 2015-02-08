@@ -76,7 +76,7 @@ var makeHeaders = function(headers, params) {
             // Quick hack for PHP, might be more or less headers.
             prop = 'HTTP_' + prop;
         }
-        params[params.length] = [prop, head]
+        params[params.length] = [prop, head || '']
     }
     return params;
 };
@@ -110,7 +110,7 @@ var connect = function(request, response, config, connection){
     var qs = '';
     var params = makeHeaders(request.headers, [
         ["SCRIPT_FILENAME", file_address],
-        ["REMOTE_ADDR",request.connection.remoteAddress],
+        ["REMOTE_ADDR",request.connection.remoteAddress || ''],
         ["QUERY_STRING", qs],
         ["REQUEST_METHOD", request.method],
         ["SCRIPT_NAME", script_file],
@@ -270,7 +270,6 @@ var parseData = function(buffer, start, end, respone){
         buffer[start + 6] === 5 &&
         buffer[start + 7] === 0
     ){
-        start += 8;
         for(var i=start; i<end; i++){
             if(
                 buffer[i] === 1 &&
@@ -282,13 +281,14 @@ var parseData = function(buffer, start, end, respone){
                 buffer[i + 6] === 0 &&
                 buffer[i + 7] === 0
             ){
+                start += 8;
                 var headers = buffer.slice(start, i - start) + '';
                 headers = headers.split("\r\n");
                 headers.forEach(function(head){
                     head = head.split(/\:\s*/);
                     respone.setHeader(head[0], head[1]);
                 });
-                start += i + 8;
+                start += i;
             }
         }
     }
