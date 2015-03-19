@@ -45,19 +45,51 @@ module.exports = function(request, response, config, next){
                 connection.end();
             });
 
-            var dataHeader = null;
-            connection.on("data",  function(chunk, start, end){
-                if(!dataHeader){
-                    dataHeader ={};
-                    parseHeader(chunk, start, end, dataHeader);
-                    start += 8;
+            var header = {
+                contentLength: 0,
+                paddingLength: 0
+            };
+            var firstChunk = true;
+            connection.on("data",  function(chunk){
+                var start = 0;
+                var end = chunk.length;
+
+                if(header.contentLength > 0){
+                    response.write(chunk.slice(start, start + header.contentLength));
+                    start += header.contentLength;
+                    header.contentLength = 0;
                 }
 
-                response.write(parseData(chunk, start, end, response));
+                var data;
+                while(start < end){
 
+                    start += header.paddingLength;
+                    header.paddingLength = 0;
+
+                    parseHeader(chunk, start, end, header);
+                    start += 8;
+                    //console.log(header);
+
+                    if(header.type !== 3){
+                        data = chunk.slice(start, start + header.contentLength);
+                        if(firstChunk){
+                            var sendHeaders = (data + "").split("\r\n");
+                            sendHeaders.forEach(function(string){
+                                if(string){
+                                    var index = string.indexOf(":");
+                                    response.setHeader(string.substr(0, index), string.substr(index+2));
+                                }
+                            });
+                            firstChunk = false;
+                        }else
+                            response.write(data);
+                        start += data.length;
+                        header.contentLength -= data.length;
+                    }
+                }
             });
 
-            connection.connect("9123", "127.0.0.1");
+            connection.connect("9000", "127.0.0.1");
             return;
         }
     }
@@ -255,42 +287,4 @@ var parseHeader = function(buffer, start, end, header){
     header.recordId = (buffer[start + 2] << 8) + buffer[start + 3];
     header.contentLength = (buffer[start + 4] << 8) + buffer[start + 5];
     header.paddingLength = buffer[start + 6];
-};
-
-var parseData = function(buffer, start, end, respone){
-    start = start || 0;
-    end = end || buffer.length;
-    if(
-        buffer[start] === 1 &&
-        buffer[start + 1] === 6 &&
-        buffer[start + 2] === 0 &&
-        buffer[start + 3] === 0 &&
-        buffer[start + 4] === 0 &&
-        buffer[start + 5] === 67 &&
-        buffer[start + 6] === 5 &&
-        buffer[start + 7] === 0
-    ){
-        for(var i=start; i<end; i++){
-            if(
-                buffer[i] === 1 &&
-                buffer[i + 1] === 6 &&
-                buffer[i + 2] === 0 &&
-                buffer[i + 3] === 0 &&
-                buffer[i + 4] === 255 &&
-                buffer[i + 5] === 248 &&
-                buffer[i + 6] === 0 &&
-                buffer[i + 7] === 0
-            ){
-                start += 8;
-                var headers = buffer.slice(start, i - start) + '';
-                headers = headers.split("\r\n");
-                headers.forEach(function(head){
-                    head = head.split(/\:\s*/);
-                    respone.setHeader(head[0], head[1]);
-                });
-                start += i;
-            }
-        }
-    }
-    return buffer.slice(start, end - start);
 };
