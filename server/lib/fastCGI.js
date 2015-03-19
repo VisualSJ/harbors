@@ -50,6 +50,7 @@ module.exports = function(request, response, config, next){
                 paddingLength: 0
             };
             var firstChunk = true;
+            var firstList = [];
             connection.on("data",  function(chunk){
                 var start = 0;
                 var end = chunk.length;
@@ -75,15 +76,29 @@ module.exports = function(request, response, config, next){
                         if(firstChunk){
                             data += "";
                             var split = data.indexOf("\r\n\r\n");
-                            var sendHeaders = data.substr(0, split).split("\r\n");
-                            sendHeaders.forEach(function(string){
-                                if(string){
-                                    var index = string.indexOf(":");
-                                    response.setHeader(string.substr(0, index), string.substr(index+2));
-                                }
-                            });
-                            response.write(data.substr(split+4));
-                            firstChunk = false;
+
+                            if(split === -1){
+                                firstList.push(data);
+                            }else{
+                                var sendHeaders = data.substr(0, split).split("\r\n");
+                                var status = 200;
+                                sendHeaders.forEach(function(string){
+                                    if(string){
+                                        var index = string.indexOf(":");
+                                        var name = string.substr(0, index);
+                                        var value = string.substr(index+2);
+                                        if(name === "Status")
+                                            status = parseInt(value);
+                                        response.setHeader(name, value);
+                                    }
+                                });
+                                response.writeHeader(status);
+                                firstList.forEach(function(data){
+                                    response.write(data);
+                                });
+                                response.write(data.substr(split+4));
+                                firstChunk = false;
+                            }
                         }else
                             response.write(data);
                         start += data.length;
@@ -92,7 +107,7 @@ module.exports = function(request, response, config, next){
                 }
             });
 
-            connection.connect("9000", "127.0.0.1");
+            connection.connect(list[i].port, list[i].host);
             return;
         }
     }
