@@ -73,13 +73,16 @@ module.exports = function(request, response, config, next){
                     if(header.type !== 3){
                         data = chunk.slice(start, start + header.contentLength);
                         if(firstChunk){
-                            var sendHeaders = (data + "").split("\r\n");
+                            data += "";
+                            var split = data.indexOf("\r\n\r\n");
+                            var sendHeaders = data.substr(0, split).split("\r\n");
                             sendHeaders.forEach(function(string){
                                 if(string){
                                     var index = string.indexOf(":");
                                     response.setHeader(string.substr(0, index), string.substr(index+2));
                                 }
                             });
+                            response.write(data.substr(split+4));
                             firstChunk = false;
                         }else
                             response.write(data);
@@ -137,7 +140,10 @@ var FCGI_MAX_HEAD = 8;
 var connect = function(request, response, config, connection){
 
     var script_dir = config.controllerDir;
-    var script_file = "/index.php";
+    var script_file = request.url;
+    if(script_file.indexOf("?") != -1){
+        script_file = script_file.substr(0, script_file.indexOf("?"));
+    }
     var file_address = path.join(script_dir,script_file);
     var qs = '';
     var params = makeHeaders(request.headers, [
