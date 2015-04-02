@@ -23,7 +23,7 @@ module.exports = function(request, response, config, next){
 
     for(var i=0; i<list.length; i++){
         if(!list[i].RegExp)
-            list[i].RegExp = new RegExp(list[i].extName + "$");
+            list[i].RegExp = new RegExp(list[i].extName);
         if(list[i].RegExp.test(url)){
 
             var connection = new net.Stream();
@@ -97,8 +97,8 @@ module.exports = function(request, response, config, next){
                                     response.write(data);
                                 });
                                 response.write(data.substr(split+4));
-                                firstChunk = false;
                             }
+                            firstChunk = false;
                         }else
                             response.write(data);
                         start += data.length;
@@ -160,7 +160,7 @@ var connect = function(request, response, config, connection){
         script_file = script_file.substr(0, script_file.indexOf("?"));
     }
     var file_address = path.join(script_dir,script_file);
-    var qs = '';
+    var qs = request.url.split('?')[1] || '';
     var params = makeHeaders(request.headers, [
         ["SCRIPT_FILENAME", file_address],
         ["REMOTE_ADDR",request.connection.remoteAddress || ''],
