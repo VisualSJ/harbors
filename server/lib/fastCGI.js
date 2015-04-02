@@ -17,6 +17,8 @@ module.exports = function(request, response, config, next){
     var dir = config.controllerDir,
         list = config.fastCGI,
         url = request.url;
+        if(/\?/.test(url))
+            url = url.split("?")[0];
 
     if(!dir || !url)
         return next();
