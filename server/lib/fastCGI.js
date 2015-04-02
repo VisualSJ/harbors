@@ -21,6 +21,9 @@ module.exports = function(request, response, config, next){
     if(!dir || !url)
         return next();
 
+    if(/\/$/.test(url))
+        url += "index.php";
+
     for(var i=0; i<list.length; i++){
         if(!list[i].RegExp)
             list[i].RegExp = new RegExp(list[i].extName);
@@ -170,6 +173,8 @@ var connect = function(request, response, config, connection){
     if(script_file.indexOf("?") != -1){
         script_file = script_file.substr(0, script_file.indexOf("?"));
     }
+    if(/(\/|\\)$/.test(script_file))
+        script_file += "index.php";
     var file_address = path.join(script_dir,script_file);
     var qs = request.url.split('?')[1] || '';
     var params = makeHeaders(request.headers, [
