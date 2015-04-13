@@ -178,7 +178,13 @@ var connect = function(request, response, config, connection){
     if(/(\/|\\)$/.test(script_file))
         script_file += "index.php";
     var file_address = path.join(script_dir,script_file);
-    var qs = request.url.split('?')[1] || '';
+    var qs = request.url.indexOf('?');
+    if(qs !== -1){
+        qs = request.url.substr(qs+1);
+    }else{
+        qs = "";
+    }
+
     var params = makeHeaders(request.headers, [
         ["SCRIPT_FILENAME", file_address],
         ["REMOTE_ADDR",request.connection.remoteAddress || ''],
