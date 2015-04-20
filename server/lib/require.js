@@ -9,45 +9,21 @@ const infoPage = require("./infoPage");
  * @param {Object} request
  * @param {Object} response
  * @param {Object} config
- * @param {Function} next
+ * @param {Object} item
+ * @param {Object} urlObject
  */
-module.exports = function(request, response, config, next){
-    if(!config)
-        return next();
-
-    var dir = config.controllerDir,
-        list = config.require,
-        url = request.url;
-
-    if(!dir || !url)
-        return next();
-
-    var index = url.indexOf("?");
-    if(index !== -1)
-        url = url.substr(0, index);
-
-    if(/\/$/.test(url))
-        url += "index";
-
-    var address = path.join(dir, url);
-    var fileName, item;
-    for(var p in list){
-        item = list[p];
-        fileName = address + item.extName;
-        if(fs.existsSync(fileName)){
-            try{
-                return handle(require(fileName), request, response, item, next);
-            }catch(error){
-                infoPage(request, response, {
-                    state: "500",
-                    title: "Internal error",
-                    text: "The server has encountered some unexpected during operation.\nPlease check and try again:\n    " + error.message
-                });
-                return;
-            }
-        }
+exports.send = function(request, response, config, item, urlObject){
+    try {
+        //读取指定的Nodejs模块，并执行
+        var module = require(urlObject.actual);
+        handle(module, request, response);
+    } catch (error) {
+        infoPage(request, response, {
+            state: "500",
+            title: "Internal error",
+            text: "The server has encountered some unexpected during operation.\nPlease check and try again:\n    " + error.message
+        });
     }
-    next();
 };
 
 /**
@@ -56,19 +32,15 @@ module.exports = function(request, response, config, next){
  * @param {Object} module
  * @param {Object} request
  * @param {Object} response
- * @param {Object} config
- * @param {Function} next
  */
-var handle = function(module, request, response, config, next){
+var handle = function(module, request, response){
     var plugList = module.plug,
         filter = module.filter,
         handle = module.handle;
 
-    if(!handle)
-        return next();
-
-    var method = {};
+    var method = {};//预处理的方法列表
     var handList = [];
+
     if(plugList){
         var i, ilen, j, jlen, obj, me;
         for(i=0, ilen=plugList.length; i<ilen; i++) {

@@ -31,7 +31,7 @@
         type = type || "zh";
         section.innerHTML = "";
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET","language?type=" + type,false);
+        xmlhttp.open("GET","language.js?type=" + type,false);
         xmlhttp.send();
         var result = JSON.parse(xmlhttp.responseText);
         var t = document.createElement("h1");

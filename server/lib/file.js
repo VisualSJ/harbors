@@ -83,40 +83,10 @@ var sendBuffer = function(response, length, buffer){
  * @param {Object} request
  * @param {Object} response
  * @param {Object} config
- * @param {Function} next
+ * @param {Object} urlObject
  */
-module.exports = function(request, response, config, next){
-    var dir = config.dir,
-        file = config.file,
-        url = decodeURI(request.url),
-        expires = config.cache ? config.cache.expires : 0,
+module.exports = function(request, response, config, urlObject){
+    var expires = config.cache ? config.cache.expires : 0,
         zip = config.zip ? config.zip.file : 0;
-
-    url = url.split("?");
-    url = url[0];
-
-    var address = path.join(dir, url);
-
-    var stat;
-    //访问的文件夹或文件存在
-    if(fs.existsSync(address)){
-
-        stat = fs.statSync(address);
-
-        //访问的是一个文件夹，需要拼接默认文件
-        if(stat.isDirectory()){
-            var ff;
-            for(var i= 0, len = file.length; i < len; i++){
-                ff = path.join(address, file[i]);
-                if(fs.existsSync(ff)){
-                    sendFile(response, request, ff, expires, zip);
-                    return;
-                }
-            }
-        }else{
-            sendFile(response, request, address, expires, zip);
-            return;
-        }
-    }
-    next();
+    sendFile(response, request, urlObject.actual, expires, zip);
 };

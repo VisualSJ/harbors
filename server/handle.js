@@ -1,4 +1,7 @@
 const http = require("http");
+const url = require("url");
+const fs = require("fs");
+const path = require("path");
 const domain = require("./lib/domain");
 const file = require("./lib/file");
 const requireFile = require("./lib/require");
@@ -22,11 +25,6 @@ exports.VHOST = function(vhost){
  */
 exports.IMPORTPLUG = plug.import;
 
-var handleList = [
-    file,
-    requireFile,
-    fastCGI
-];
 /**
  * 开启一个服务器
  * @param {Object} host - port, ip, host num
@@ -79,17 +77,102 @@ exports.START = function(host){
         if(!config)
             return end(request, response);
 
-        var index = -1;
-        var next = function(){
-            index++;
-            if(handleList[index])
-                handleList[index](request, response, config, next);
-            else
-                end(request, response);
-        };
-        next();
+        //解析url地址以及GET参数
+        var urlObject;
+        if(request.url)
+            urlObject = url.parse(request.url);
+        else
+            urlObject = {
+                protocol: null,
+                slashes: null,
+                auth: null,
+                host: null,
+                port: null,
+                hostname: null,
+                hash: null,
+                search: '',
+                query: '',
+                pathname: '',
+                path: '',
+                href: ''
+            };
+
+        var isDir = /\/$/.test(urlObject.pathname);
+        var tPath, tUrl, i;
+
+        if(isDir){
+            if(config.file){
+                for(i=0; i<config.file.length; i++){
+                    tUrl = url.resolve(urlObject.pathname, config.file[i]);
+                    tPath = path.join(config.controllerDir, tUrl);
+                    if(fs.existsSync(tPath)){
+                        urlObject.pathname = tUrl;
+                        urlObject.actual = tPath;
+                        getHandle(request, response, config, urlObject);
+                        return;
+                    }
+                }
+            }
+        }else{
+            urlObject.actual = path.join(config.controllerDir, urlObject.pathname);
+            if(fs.existsSync(urlObject.actual)) {
+                getHandle(request, response, config, urlObject);
+                return;
+            }
+        }
+
+        //静态文件
+        urlObject.actual = path.join(config.dir, urlObject.pathname);
+        if(isDir){
+            if(config.file){
+                for(i=0; i<config.file.length; i++){
+                    tUrl = url.resolve(urlObject.pathname, config.file[i]);
+                    tPath = path.join(config.dir, tUrl);
+                    if(fs.existsSync(tPath)){
+                        urlObject.pathname = tUrl;
+                        urlObject.actual = tPath;
+                        file(request, response, config, urlObject);
+                        return;
+                    }
+                }
+            }
+        }else{
+            urlObject.actual = path.join(config.dir, urlObject.pathname);
+            if(fs.existsSync(urlObject.actual)) {
+                file(request, response, config, urlObject);
+                return;
+            }
+        }
+
+        end(request, response);
 
     }).listen(host.port, host.ip);
+};
+
+var getHandle = function(request, response, config, urlObject){
+    var i, list, item;
+
+    //nodejs 模块
+    i = 0;
+    list = config.require;
+    for(i; i< list.length; i++){
+        item = list[i];
+        if(urlObject.actual.indexOf(item.extName) > -1){
+            requireFile.send(request, response, config, item, urlObject);
+            return;
+        }
+    }
+
+    //fastCGI模块
+    i = 0;
+    list = config.fastCGI;
+    for(i; i< list.length; i++){
+        item = list[i];
+        if(urlObject.actual.indexOf(item.extName) > -1){
+            fastCGI.send(request, response, config, item, urlObject);
+            return;
+        }
+    }
 };
 
 function getClientIp(request) {

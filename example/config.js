@@ -8,7 +8,7 @@ exports.config = {
 exports.default = {
     dir: "",//静态文件地址, 默认为运行文件夹下
     controllerDir: "",//动态接口文件地址, 默认为运行文件夹下(和dir目录一样的话,文件会优先返回成静态文件!)
-    file: ["index.html"],//默认返回文件
+    file: ["index.html", "index.js", "index.php"],//默认返回文件
     port: [3000],//端口
     ip: null,//绑定服务器的ip
     domain: "*",//绑定服务器的域名

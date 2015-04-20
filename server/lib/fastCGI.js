@@ -8,126 +8,104 @@ var path = require("path");
  * @param {Object} request
  * @param {Object} response
  * @param {Object} config
- * @param {Function} next
+ * @param {Object} setting
+ * @param {Object} urlObject
  */
-module.exports = function(request, response, config, next){
-    if(!config)
-        return next();
+exports.send = function(request, response, config, setting, urlObject){
 
-    var dir = config.controllerDir,
-        list = config.fastCGI,
-        url = request.url;
-        if(/\?/.test(url))
-            url = url.split("?")[0];
+    var connection = new net.Stream();
+    connection.setNoDelay(true);
 
-    if(!dir || !url)
-        return next();
+    connection.addListener("error", function(err) {
+        sys.puts(sys.inspect(err.stack));
+        connection.end();
+    });
+    connection.on("connect", function(){
+        connect(request, response, config, urlObject, connection);
+    });
+    connection.addListener("close", function() {
+        response.end();
+        connection.end();
+    });
+    connection.on("end", function(){
+        response.end();
+        connection.end();
+    });
 
-    if(/\/$/.test(url))
-        url += "index.php";
+    var header = {
+        contentLength: 0,
+        paddingLength: 0
+    };
+    var firstChunk = true;
+    var firstList = [];
+    connection.on("data",  function(chunk){
+        var start = 0;
+        var end = chunk.length;
 
-    for(var i=0; i<list.length; i++){
-        if(!list[i].RegExp)
-            list[i].RegExp = new RegExp(list[i].extName);
-        if(list[i].RegExp.test(url)){
-
-            var connection = new net.Stream();
-            connection.setNoDelay(true);
-
-            connection.addListener("error", function(err) {
-                sys.puts(sys.inspect(err.stack));
-                connection.end();
-            });
-            connection.on("connect", function(){
-                connect(request, response, config, connection);
-            });
-            connection.addListener("close", function() {
-                response.end();
-                connection.end();
-            });
-            connection.on("end", function(){
-                response.end();
-                connection.end();
-            });
-
-            var header = {
-                contentLength: 0,
-                paddingLength: 0
-            };
-            var firstChunk = true;
-            var firstList = [];
-            connection.on("data",  function(chunk){
-                var start = 0;
-                var end = chunk.length;
-
-                if(header.contentLength > 0){
-                    response.write(chunk.slice(start, start + header.contentLength));
-                    start += header.contentLength;
-                    header.contentLength = 0;
-                }
-
-                var data;
-                while(start < end){
-
-                    start += header.paddingLength;
-                    header.paddingLength = 0;
-
-                    parseHeader(chunk, start, end, header);
-                    start += 8;
-                    //console.log(header);
-                    var length = 0;
-                    switch(header.type){
-                        case 7:
-                            data = chunk.slice(start, start + header.contentLength);
-                            length = data.length;
-                            break;
-                        case 6:
-                            data = chunk.slice(start, start + header.contentLength);
-                            length = data.length;
-                            if(firstChunk){
-                                data += "";
-                                var split = data.indexOf("\r\n\r\n");
-
-                                if(split === -1){
-                                    firstList.push(data);
-                                }else{
-                                    var sendHeaders = data.substr(0, split).split("\r\n");
-                                    var status = 200;
-                                    sendHeaders.forEach(function(string){
-                                        if(string){
-                                            var index = string.indexOf(":");
-                                            var name = string.substr(0, index);
-                                            var value = string.substr(index+2);
-                                            if(name === "Status")
-                                                status = parseInt(value);
-                                            response.setHeader(name, value);
-                                        }
-                                    });
-                                    response.writeHeader(status);
-                                    firstList.forEach(function(data){
-                                        response.write(data);
-                                    });
-                                    response.write(data.substr(split+4));
-                                }
-                                firstChunk = false;
-                            }else
-                                response.write(data);
-                            break;
-                        case 3:
-                            break;
-                        default:
-                            break;
-                    }
-                    start += length;
-                    header.contentLength -= length;
-                }
-            });
-
-            connection.connect(list[i].port, list[i].host);
-            return;
+        if(header.contentLength > 0){
+            response.write(chunk.slice(start, start + header.contentLength));
+            start += header.contentLength;
+            header.contentLength = 0;
         }
-    }
-    next();
+
+        var data;
+        while(start < end){
+
+            start += header.paddingLength;
+            header.paddingLength = 0;
+
+            parseHeader(chunk, start, end, header);
+            start += 8;
+            //console.log(header);
+            var length = 0;
+            switch(header.type){
+                case 7:
+                    data = chunk.slice(start, start + header.contentLength);
+                    length = data.length;
+                    break;
+                case 6:
+                    data = chunk.slice(start, start + header.contentLength);
+                    length = data.length;
+                    if(firstChunk){
+                        data += "";
+                        var split = data.indexOf("\r\n\r\n");
+
+                        if(split === -1){
+                            firstList.push(data);
+                        }else{
+                            var sendHeaders = data.substr(0, split).split("\r\n");
+                            var status = 200;
+                            sendHeaders.forEach(function(string){
+                                if(string){
+                                    var index = string.indexOf(":");
+                                    var name = string.substr(0, index);
+                                    var value = string.substr(index+2);
+                                    if(name === "Status")
+                                        status = parseInt(value);
+                                    response.setHeader(name, value);
+                                }
+                            });
+                            response.writeHeader(status);
+                            firstList.forEach(function(data){
+                                response.write(data);
+                            });
+                            response.write(data.substr(split+4));
+                        }
+                        firstChunk = false;
+                    }else
+                        response.write(data);
+                    break;
+                case 3:
+                    break;
+                default:
+                    break;
+            }
+            start += length;
+            header.contentLength -= length;
+        }
+    });
+
+    connection.connect(setting.port, setting.host);
 };
 
 var makeHeaders = function(headers, params) {
@@ -168,32 +146,24 @@ var getParamLength = function(params) {
 var FCGI_MAX_BODY = Math.pow(2, 16);
 var FCGI_MAX_HEAD = 8;
 
-var connect = function(request, response, config, connection){
+var connect = function(request, response, config, urlObject, connection){
 
     var script_dir = config.controllerDir;
-    var script_file = request.url;
-    if(script_file.indexOf("?") != -1){
-        script_file = script_file.substr(0, script_file.indexOf("?"));
-    }
+    var script_file = urlObject.pathname;
     if(/(\/|\\)$/.test(script_file))
         script_file += "index.php";
+
     var file_address = path.join(script_dir,script_file);
-    var qs = request.url.indexOf('?');
-    if(qs !== -1){
-        qs = request.url.substr(qs+1);
-    }else{
-        qs = "";
-    }
 
     var params = makeHeaders(request.headers, [
         ["SCRIPT_FILENAME", file_address],
         ["REMOTE_ADDR",request.connection.remoteAddress || ''],
-        ["QUERY_STRING", qs],
+        ["QUERY_STRING", urlObject.query || ''],
         ["REQUEST_METHOD", request.method],
         ["SCRIPT_NAME", script_file],
-        ["PATH_INFO", request.url.split('?')[0]],
+        ["PATH_INFO", urlObject.pathname || ''],
         ["DOCUMENT_URI", script_file],
-        ["REQUEST_URI", request.url.split('?')[0]],
+        ["REQUEST_URI", urlObject.pathname || ''],
         ["DOCUMENT_ROOT", script_dir],
         ["PHP_SELF", file_address],
         ["GATEWAY_PROTOCOL", "CGI/1.1"],
