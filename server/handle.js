@@ -108,21 +108,22 @@ exports.START = function(host){
                     if(fs.existsSync(tPath)){
                         urlObject.pathname = tUrl;
                         urlObject.actual = tPath;
-                        getHandle(request, response, config, urlObject);
-                        return;
+                        if(getHandle(request, response, config, urlObject)){
+                            return;
+                        }
                     }
                 }
             }
         }else{
             urlObject.actual = path.join(config.controllerDir, urlObject.pathname);
             if(fs.existsSync(urlObject.actual)) {
-                getHandle(request, response, config, urlObject);
-                return;
+                if(getHandle(request, response, config, urlObject)){
+                    return;
+                }
             }
         }
 
         //静态文件
-        urlObject.actual = path.join(config.dir, urlObject.pathname);
         if(isDir){
             if(config.file){
                 for(i=0; i<config.file.length; i++){
@@ -159,7 +160,7 @@ var getHandle = function(request, response, config, urlObject){
         item = list[i];
         if(urlObject.actual.indexOf(item.extName) > -1){
             requireFile.send(request, response, config, item, urlObject);
-            return;
+            return true;
         }
     }
 
@@ -170,9 +171,10 @@ var getHandle = function(request, response, config, urlObject){
         item = list[i];
         if(urlObject.actual.indexOf(item.extName) > -1){
             fastCGI.send(request, response, config, item, urlObject);
-            return;
+            return true;
         }
     }
+    return false;
 };
 
 function getClientIp(request) {
