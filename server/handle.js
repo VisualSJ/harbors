@@ -70,12 +70,12 @@ exports.START = function(host){
             return end(request, response);
         }
 
+        if(!config)
+            return end(request, response);
+
         //是否允许来源页面的跨域访问
         if(config.accessOrigin)
             response.setHeader("Access-Control-Allow-Origin", "*");
-
-        if(!config)
-            return end(request, response);
 
         //解析url地址以及GET参数
         var urlObject;
@@ -99,6 +99,14 @@ exports.START = function(host){
 
         var isDir = /\/$/.test(urlObject.pathname);
         var tPath, tUrl, i;
+
+        if(config.rewrite && config.rewrite.length > 0){
+            config.rewrite.forEach(function(item){
+                if(item.regular === undefined)
+                    item.regular = new RegExp(item.condition);
+                urlObject.pathname = urlObject.pathname.replace(item.regular, item.result)
+            });
+        }
 
         if(isDir){
             if(config.file){

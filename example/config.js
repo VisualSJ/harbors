@@ -33,6 +33,12 @@ exports.default = {
         dir: null,
         size: 1024 * 10
     },
+    rewrite: [
+        {
+            condition: "([^.]+)$",
+            result: "$1.js"
+        }
+    ],
     fastCGI: [
         {
             //注册一个通过fastCGI通讯的文件类
