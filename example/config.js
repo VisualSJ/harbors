@@ -29,32 +29,28 @@ exports.default = {
     zip: {
         file: []
     },
-    log: {
-        dir: null,
-        size: 1024 * 10
-    },
     rewrite: [
         {
-            condition: "([^.]+)$",
-            result: "$1.js"
+            condition: "^([^.]+)$", //匹配没有扩展名的路径，并且将路径存入$1 (标准正则)
+            result: "$1.js" //输出更改路径为xxx.js
         }
     ],
-    fastCGI: [
-        {
-            //注册一个通过fastCGI通讯的文件类
-            extName: ".php",
-            host: "127.0.0.1",
-            port: 9000
-        }
-    ],
-    require: [
-        {
-            //注册一个通过require引入的文件类
-            extName: ".js",
-            autoReload: true,
-            timeout: 10000
-        }
-    ]
+    //fastCGI: [
+    //    {
+    //        //注册一个通过fastCGI通讯的文件类
+    //        extName: ".php",
+    //        host: "127.0.0.1",
+    //        port: 9000
+    //    }
+    //],
+    //require: [
+    //    {
+    //        //注册一个通过require引入的文件类
+    //        extName: ".js",
+    //        autoReload: true,
+    //        timeout: 10000
+    //    }
+    //]
 };
 
 exports.vhost = [];

@@ -30,11 +30,13 @@ if(cluster.isMaster){
         return;
     }
 
+    //读取配置，如果没有，则返回空对象
     var op = config.read(cmd.start);
 
     if(cmd.port)
         eConfig.default.port = cmd.port;
 
+    //填充具体的配置
     op = config.fill(op);
 
     var vhost = config.separation(op);

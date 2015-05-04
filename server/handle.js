@@ -100,6 +100,7 @@ exports.START = function(host){
         var isDir = /\/$/.test(urlObject.pathname);
         var tPath, tUrl, i;
 
+        //匹配每个重写规则
         if(config.rewrite && config.rewrite.length > 0){
             config.rewrite.forEach(function(item){
                 if(item.regular === undefined)
@@ -108,6 +109,7 @@ exports.START = function(host){
             });
         }
 
+        //判断路径是否需要添加默认的访问文件，并且尝试返回动态文件
         if(isDir){
             if(config.file){
                 for(i=0; i<config.file.length; i++){
