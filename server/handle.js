@@ -166,22 +166,26 @@ var getHandle = function(request, response, config, urlObject){
     //nodejs 模块
     i = 0;
     list = config.require;
-    for(i; i< list.length; i++){
-        item = list[i];
-        if(urlObject.actual.indexOf(item.extName) > -1){
-            requireFile.send(request, response, config, item, urlObject);
-            return true;
+    if(list){
+        for(i; i< list.length; i++){
+            item = list[i];
+            if(urlObject.actual.indexOf(item.extName) > -1){
+                requireFile.send(request, response, config, item, urlObject);
+                return true;
+            }
         }
     }
 
     //fastCGI模块
     i = 0;
     list = config.fastCGI;
-    for(i; i< list.length; i++){
-        item = list[i];
-        if(urlObject.actual.indexOf(item.extName) > -1){
-            fastCGI.send(request, response, config, item, urlObject);
-            return true;
+    if(list){
+        for(i; i< list.length; i++){
+            item = list[i];
+            if(urlObject.actual.indexOf(item.extName) > -1){
+                fastCGI.send(request, response, config, item, urlObject);
+                return true;
+            }
         }
     }
     return false;
