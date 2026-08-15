@@ -34,9 +34,19 @@ if git -C "$repo_root" worktree list --porcelain | grep -Fqx "worktree $worktree
   kit_workflow_fail "worktree already registered: $worktree_path"
 fi
 
+kit_exists=yes
+if ! git -C "$repo_root" cat-file -e "$base_commit:kits/$kit/kit.json" 2>/dev/null; then
+  kit_exists=no
+  if test "$change_type" != feature; then
+    kit_workflow_fail "Kit $kit does not exist; only feature changes can create a new Kit"
+  fi
+fi
+
 git -C "$repo_root" worktree add -b "$branch" "$worktree_path" "$base_commit"
 (cd "$worktree_path" && npm ci)
-kit_workflow_validate_product "$worktree_path" "$kit"
+if test "$kit_exists" = yes; then
+  kit_workflow_validate_product "$worktree_path" "$kit"
+fi
 task_id=$(cd "$worktree_path" && node scripts/task-status.mjs init "$change_type" "$slug")
 task_dir="$worktree_path/docs/tasks/$task_id"
 command -v gh >/dev/null 2>&1 || printf 'warning: gh is not installed; it is required to finish and create a PR\n' >&2

@@ -5,7 +5,6 @@ REPO_SOURCE=$(git -C "$TEST_DIR" rev-parse --show-toplevel)
 SKILL_SOURCE="$REPO_SOURCE/.agents/skills/kit-workflow"
 SOURCE_START="$SKILL_SOURCE/scripts/start-kit-change.sh"
 SOURCE_FINISH="$SKILL_SOURCE/scripts/finish-kit-change.sh"
-SOURCE_RELEASE="$SKILL_SOURCE/scripts/release-kit.sh"
 SOURCE_LIB="$SKILL_SOURCE/scripts/_kit-workflow-lib.sh"
 SOURCE_TASK_CLI="$REPO_SOURCE/scripts/task-status.mjs"
 SOURCE_TASK_DOMAIN="$REPO_SOURCE/scripts/lib/task-status.mjs"
@@ -44,9 +43,6 @@ copy_workflow_scripts() {
   cp "$SOURCE_LIB" "$directory/.agents/skills/kit-workflow/scripts/_kit-workflow-lib.sh"
   cp "$SOURCE_START" "$directory/.agents/skills/kit-workflow/scripts/start-kit-change.sh"
   cp "$SOURCE_FINISH" "$directory/.agents/skills/kit-workflow/scripts/finish-kit-change.sh"
-  cp "$SOURCE_RELEASE" "$directory/.agents/skills/kit-workflow/scripts/release-kit.sh"
-  cp "$REPO_SOURCE/scripts/plan-kit-releases.mjs" "$directory/scripts/plan-kit-releases.mjs"
-  cp "$REPO_SOURCE/scripts/lib/kit-release-intent.mjs" "$directory/scripts/lib/kit-release-intent.mjs"
   mkdir -p "$directory/docs/tasks"
   cp "$SOURCE_TASK_CLI" "$directory/scripts/task-status.mjs"
   cp "$SOURCE_TASK_DOMAIN" "$directory/scripts/lib/task-status.mjs"
@@ -89,7 +85,6 @@ write_kit_files() {
 write_repository_files() {
   local directory=$1
   copy_workflow_scripts "$directory"
-  mkdir -p "$directory/registry"
   printf '%s\n' \
     '{' \
     '  "name": "itharbors",' \
@@ -103,16 +98,6 @@ write_repository_files() {
     '  "requires": true,' \
     '  "packages": { "": { "name": "itharbors" } }' \
     '}' > "$directory/package-lock.json"
-  printf '%s\n' \
-    '{' \
-    '  "schemaVersion": 1,' \
-    '  "repository": "itharbors/harbors",' \
-    '  "workflow": "itharbors/harbors/.github/workflows/publish-kit.yml",' \
-  '  "signerWorkflows": ["itharbors/harbors/.github/workflows/publish-kit-reusable.yml@refs/tags/kit-publish-v2"],' \
-  '  "kits": {' \
-    '    "sqlite": { "id": "sqlite" }' \
-    '  }' \
-    '}' > "$directory/registry/policy.json"
   write_kit_files "$directory"
 }
 
@@ -139,7 +124,7 @@ NODE
 
 new_fixture() {
   export PATH="$ORIGINAL_PATH" TMPDIR="$ORIGINAL_TMPDIR"
-  unset NPM_FAIL GH_AUTH_FAIL GH_OPEN_PR_COUNT GH_REPO_OWNER GH_LIST_URL GH_VIEW_NUMBER GH_VIEW_BASE GH_VIEW_HEAD GH_VIEW_STATE GH_VIEW_URL GH_VIEW_HEAD_OID GH_VIEW_STALE_HEAD GH_VIEW_CROSS_REPOSITORY GH_VIEW_HEAD_OWNER GH_VIEW_MERGED_AT GH_FORK_URL GH_REPLACEMENT_MODE GH_OLD_PR_STATE GH_OLD_PR_MERGED_AT GH_CREATE_URL GIT_FAIL_PUSH_NUMBER GIT_FAIL_STATUS_COMMIT GIT_CONFIG_GLOBAL HARBORS_KIT_RELEASE_CONFIRM
+  unset NPM_FAIL GH_AUTH_FAIL GH_OPEN_PR_COUNT GH_REPO_OWNER GH_LIST_URL GH_VIEW_NUMBER GH_VIEW_BASE GH_VIEW_HEAD GH_VIEW_STATE GH_VIEW_URL GH_VIEW_HEAD_OID GH_VIEW_STALE_HEAD GH_VIEW_CROSS_REPOSITORY GH_VIEW_HEAD_OWNER GH_VIEW_MERGED_AT GH_FORK_URL GH_REPLACEMENT_MODE GH_OLD_PR_STATE GH_OLD_PR_MERGED_AT GH_CREATE_URL GIT_FAIL_PUSH_NUMBER GIT_FAIL_STATUS_COMMIT GIT_CONFIG_GLOBAL
   FIXTURE_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/kit-workflow.XXXXXX")
   FIXTURE_ROOT=$(cd "$FIXTURE_ROOT" && pwd -P)
   ORIGIN="$FIXTURE_ROOT/origin.git"
@@ -157,7 +142,6 @@ new_fixture() {
   git -C "$REPO" push -u origin main >/dev/null 2>&1
   git -C "$ORIGIN" symbolic-ref HEAD refs/heads/main
   START="$REPO/.agents/skills/kit-workflow/scripts/start-kit-change.sh"
-  RELEASE="$REPO/.agents/skills/kit-workflow/scripts/release-kit.sh"
 }
 
 label_for_type() {
@@ -401,9 +385,4 @@ EOF
   git -C "$WORKTREE" commit -m "[$(label_for_type "$type")] 添加测试变更" >/dev/null
   BODY="$FIXTURE_ROOT/pr-body.md"
   printf '## Summary\n\nChange.\n\n## Testing\n\n- npm run kit:check -- sqlite\n' > "$BODY"
-}
-
-prepare_release() {
-  new_fixture
-  install_mocks
 }
